@@ -172,6 +172,14 @@ class ForceField(object):
 
   par_35: Array #ACKS2
 
+  # ML correction parameters
+  # their shapes are [# types, # types]
+  corr_par_morse_de: Array
+  corr_par_morse_re: Array
+  corr_par_morse_a: Array
+  corr_par_LJ: Array
+  corr_par_G: Array
+
   @classmethod
   def init_from_arg_dict(cls, kwargs):
     field_set = {f.name for f in fields(cls) if f.init}

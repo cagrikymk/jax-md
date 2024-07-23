@@ -44,7 +44,8 @@ def calculate_reaxff_energy(species: Array,
                             backprop_solve: bool = False,
                             tors_2013: bool = False,
                             tapered_reaxff: bool = False,
-                            solver_model: str = "EEM"):
+                            solver_model: str = "EEM",
+                            use_ML_correction: bool = False):
   '''
   Calculate full ReaxFF potential
   Args:
@@ -94,6 +95,7 @@ def calculate_reaxff_energy(species: Array,
   coulomb_acks2 = 0
   charge_pot_acks2 = 0
   self_energy = 0
+  ML_correction = 0
 
   result_dict = dict()
 
@@ -277,12 +279,37 @@ def calculate_reaxff_energy(species: Array,
                              force_field)
     result_dict['E_hbond'] = hb_pot
 
+  if use_ML_correction:
+    ML_correction = calculate_ML_correction(species,
+                                            far_nbr_mask,
+                                            far_neigh_types,
+                                            far_nbr_dists,
+                                            force_field)
+
+
   return (cou_pot + vdw_pot + charge_pot
           + cov_pot + lone_pot + val_pot
           + total_penalty + total_conj
           + overunder_pot + tor_conj
             + torsion_pot + hb_pot +
-            self_energy), charges
+            self_energy + ML_correction), charges
+
+def calculate_ML_correction(species: Array,
+                          far_nbr_mask: Array,
+                          far_neigh_types: Array,
+                          far_nbr_dists: Array,
+                          force_field: ForceField):
+  species = species.reshape(-1, 1)
+  # these parameter arrays need to be symm. Ex. par[i,j] == par[j,i]
+  my_de = force_field.corr_par_morse_de[far_neigh_types, species]
+  my_re = force_field.corr_par_morse_re[far_neigh_types, species]
+  my_a = force_field.corr_par_morse_a[far_neigh_types, species]
+  # far_nbr_dists, my_de, my_re, my_a: NxK
+  energy = my_de * (1.0 - jnp.exp(-my_a * (far_nbr_dists - my_re)))**2
+  energy = energy * far_nbr_mask # mask the dummy atoms
+  return jnp.sum(energy / 2) # divide by 2 since we are double counting pairs
+
+  
 
 def calculate_eem_charges(species: Array,
                           atom_mask: Array,

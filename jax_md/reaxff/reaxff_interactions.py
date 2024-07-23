@@ -551,6 +551,7 @@ def reaxff_inter_list(displacement: DisplacementFn,
                     backprop_solve: bool = False,
                     tors_2013: bool = False,
                     solver_model: str = "EEM",
+                    use_ML_correction: bool = False,
                     short_inters_capacity_multiplier: int = 1.2,
                     long_inters_capacity_multiplier: int = 1.2
                     ) -> Tuple[ReaxFFNeighborListFns,
@@ -852,6 +853,7 @@ def reaxff_inter_list(displacement: DisplacementFn,
                                             backprop_solve,
                                             tors_2013,
                                             solver_model=solver_model,
+                                            use_ML_correction=use_ML_correction
                                             )
 
 

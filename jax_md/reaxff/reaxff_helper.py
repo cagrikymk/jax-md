@@ -765,7 +765,12 @@ def read_force_field(force_field_file,
   FF_field_dict['softcut_2d'] = onp.zeros_like(FF_field_dict['p1co_off'])
 
   FF_field_dict['params_to_indices'] = frozendict(FF_param_to_index)
-
+  # correction parameter place holders
+  FF_field_dict['corr_par_morse_de'] = onp.zeros_like(FF_field_dict['p1co_off'])
+  FF_field_dict['corr_par_morse_re'] = onp.zeros_like(FF_field_dict['p1co_off'])
+  FF_field_dict['corr_par_morse_a'] = onp.zeros_like(FF_field_dict['p1co_off'])
+  FF_field_dict['corr_par_LJ'] = onp.zeros_like(FF_field_dict['p1co_off'])
+  FF_field_dict['corr_par_G'] = onp.zeros_like(FF_field_dict['p1co_off'])
   FF_fields = ForceField.__dataclass_fields__
   for k in FF_field_dict:
     is_static = k in FF_fields and FF_fields[k].metadata.get('static', False)
